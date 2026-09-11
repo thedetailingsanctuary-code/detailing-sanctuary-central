@@ -130,15 +130,15 @@ git push -u origin main
 ### 5.3 The 15-minute rain check - pick one
 
 The rain check is an endpoint that something has to call every 15 minutes during the day.
-`vercel.json` already asks Vercel Cron to do that (Mon-Sat, 8am-6pm UK, the app skips anything
-outside those hours by itself).
+The project is set up for the **free** route by default, because the Vercel account is on the
+Hobby plan (Hobby only allows once-a-day cron jobs and rejects a 15-minute schedule):
 
-- **Vercel Pro (about $20/month):** nothing to do, it just works. This is the simplest option.
-- **Vercel Hobby (free):** Hobby only allows once-a-day cron jobs and the deploy will complain
-  about the 15-minute schedule. Do this instead:
-  1. Delete the `"crons"` block from `vercel.json` (leave `{}`), commit and push.
-  2. Open `supabase/optional/pg_cron_scheduler.sql`, replace `YOUR-APP-DOMAIN` and `YOUR_CRON_SECRET`,
-     paste it into the Supabase SQL editor and run it. Supabase now calls the endpoint every 15 minutes, free.
+- **Free (default): Supabase scheduler.** Open `supabase/optional/pg_cron_scheduler.sql`, replace
+  `YOUR-APP-DOMAIN` and `YOUR_CRON_SECRET` (the CRON_SECRET value is in Vercel > Settings >
+  Environment Variables), paste it into the Supabase SQL editor and run it. Supabase then calls the
+  endpoint every 15 minutes, Mon-Sat, and the app ignores calls outside 8am-6pm UK time.
+- **Vercel Pro (about $20/month) instead:** add the `"crons"` block shown inside `vercel.json` and
+  redeploy; Vercel then does the scheduling and you can skip the Supabase step.
 
 Either way you can test the check by hand from a terminal (replace the two values):
 
