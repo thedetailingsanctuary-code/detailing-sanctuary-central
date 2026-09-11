@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+/* Detailing Sanctuary visual language: dark automotive + champagne gold. */
+@theme {
+  --color-ink: #08080a;
+  --color-surface-1: #101013;
+  --color-surface-2: #17171c;
+  --color-surface-3: #202027;
+  --color-gold: #f0b429;
+  --color-gold-deep: #b8860b;
+  --color-gold-light: #ffd166;
+  --color-fg: #f4f4f5;
+  --color-fg-dim: #b4b4bb;
+  --color-fg-muted: #7c7c86;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-line-strong: rgba(255, 255, 255, 0.16);
+  --color-rain: #5aa9e6;
+  --color-ok: #3ddc97;
+  --color-warn: #ff8c42;
+  --color-danger: #ff5c5c;
+
+  --font-display: var(--font-oswald), "Segoe UI Semibold", "Arial Narrow", sans-serif;
+  --font-sans: var(--font-inter), "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --radius-card: 14px;
+  --shadow-gold: 0 0 0 1px rgba(240, 180, 41, 0.35), 0 10px 30px rgba(240, 180, 41, 0.08);
+}
+
+html {
+  color-scheme: dark;
+  background: var(--color-ink);
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+.card {
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+.card-gold {
+  background: linear-gradient(160deg, #17150f 0%, #101013 60%);
+  border: 1px solid rgba(240, 180, 41, 0.45);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-gold);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 52px;
+  padding: 0 1.25rem;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+  user-select: none;
+}
+.btn:active { transform: scale(0.98); }
+.btn-gold { background: var(--color-gold); color: #08080a; }
+.btn-gold:hover { background: var(--color-gold-light); }
+.btn-ghost { background: transparent; border: 1px solid var(--color-line-strong); color: var(--color-fg); }
+.btn-ghost:hover { border-color: var(--color-gold); color: var(--color-gold); }
+.btn[disabled] { opacity: 0.5; pointer-events: none; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-fg-dim);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.95rem;
+}
+.chip[data-active="true"] { background: var(--color-gold); border-color: var(--color-gold); color: #08080a; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-fg-dim);
+}
+
+.safe-bottom { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
+.safe-top { padding-top: env(safe-area-inset-top, 0px); }
+
+@keyframes pulse-gold { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+.pulse { animation: pulse-gold 1.6s ease-in-out infinite; }

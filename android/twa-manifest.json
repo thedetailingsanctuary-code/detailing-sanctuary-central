@@ -1,0 +1,43 @@
+{
+  "packageId": "uk.co.detailingsanctuary.central",
+  "host": "REPLACE-WITH-YOUR-APP-DOMAIN",
+  "name": "Detailing Sanctuary Central",
+  "launcherName": "DS Central",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#08080a",
+  "themeColorDark": "#08080a",
+  "navigationColor": "#08080a",
+  "navigationColorDark": "#08080a",
+  "navigationDividerColor": "#08080a",
+  "navigationDividerColorDark": "#08080a",
+  "backgroundColor": "#08080a",
+  "enableNotifications": true,
+  "startUrl": "/?source=twa",
+  "iconUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/icons/icon-512.png",
+  "maskableIconUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/icons/maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    { "name": "Prices", "shortName": "Prices", "url": "/pricing", "chosenIconUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/icons/icon-192.png" },
+    { "name": "Gallery", "shortName": "Gallery", "url": "/gallery", "chosenIconUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/icons/icon-192.png" }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/manifest.webmanifest",
+  "fullScopeUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": { "enabled": false },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "minSdkVersion": 26
+}

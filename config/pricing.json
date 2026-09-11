@@ -1,0 +1,48 @@
+{
+  "currency": "GBP",
+  "updated": "2026-09-11",
+  "services": [
+    {
+      "id": "valeting",
+      "name": "Valeting",
+      "note": "Prices are 'from' - final price depends on vehicle size and condition.",
+      "items": [
+        { "id": "valeting-maintenance", "tier": "Maintenance", "price_pence": 5500, "is_from": true, "unit": "per visit" },
+        { "id": "valeting-full", "tier": "Full Valet", "price_pence": 9000, "is_from": true },
+        { "id": "valeting-deep", "tier": "Deep Clean", "price_pence": 13500, "is_from": true },
+        { "id": "valeting-makeover", "tier": "Make Over", "price_pence": 28500, "is_from": true }
+      ]
+    },
+    {
+      "id": "ceramic",
+      "name": "Ceramic Coating",
+      "note": "Standalone service - not bundled with valeting.",
+      "items": [
+        { "id": "ceramic-2yr", "tier": "2 Year Coating", "price_pence": 35000 },
+        { "id": "ceramic-5yr", "tier": "5 Year Coating", "price_pence": 40000 },
+        { "id": "ceramic-7yr", "tier": "7 Year 10H Coating", "price_pence": 56500, "note": "inc VAT" },
+        { "id": "ceramic-window", "tier": "Window Ceramic Coating", "price_pence": 17500 }
+      ]
+    },
+    {
+      "id": "paint-correction",
+      "name": "Paint Correction",
+      "note": "Quoted per vehicle after inspection.",
+      "items": [
+        { "id": "paint-correction-quote", "tier": "Quote per vehicle", "is_quote": true }
+      ]
+    },
+    {
+      "id": "maintenance-plan",
+      "name": "Maintenance Plan",
+      "note": "Contracted plans are priced per visit.",
+      "items": [
+        { "id": "plan-payg", "tier": "Pay as you go", "price_pence": 9000, "unit": "per visit" },
+        { "id": "plan-weekly", "tier": "Weekly (contract)", "price_pence": 3500, "unit": "per visit", "visits_per_year": 52 },
+        { "id": "plan-fortnightly", "tier": "Fortnightly (contract)", "price_pence": 4500, "unit": "per visit", "visits_per_year": 26 },
+        { "id": "plan-3weekly", "tier": "Every 3 weeks (contract)", "price_pence": 6000, "unit": "per visit", "visits_per_year": 17 },
+        { "id": "plan-monthly", "tier": "Monthly (contract)", "price_pence": 8000, "unit": "per visit", "visits_per_year": 12 }
+      ]
+    }
+  ]
+}

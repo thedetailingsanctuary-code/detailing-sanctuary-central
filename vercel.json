@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/rain-check",
+      "schedule": "*/15 7-18 * * 1-6"
+    }
+  ]
+}

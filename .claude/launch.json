@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ds-central",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$env:NODE_OPTIONS='--use-system-ca'; npm run dev -- --port 3010"
+      ],
+      "port": 3010
+    }
+  ]
+}
