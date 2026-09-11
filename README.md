@@ -14,7 +14,7 @@ same Microsoft client with one extra permission - see `docs/ARCHITECTURE.md`.
 | Set up the accounts and deploy it              | `docs/SETUP.md`            |
 | Understand how it works, in plain English      | `docs/ARCHITECTURE.md`     |
 | Put it on the Google Play Store                | `docs/PLAY_STORE.md`       |
-| Change prices                                  | Supabase table `pricing_items` (or `config/pricing.json` as the fallback) |
+| Change prices                                  | Supabase table `pricing_items` for quick edits; `config/pricing.json` + `node scripts/pricing-sql.mjs` for bigger changes |
 | Change home base, hours or alert lead time     | Supabase table `app_settings` |
 
 ## Run it on this PC (sample data, no accounts needed)

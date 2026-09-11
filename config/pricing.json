@@ -1,47 +1,99 @@
 {
   "currency": "GBP",
   "updated": "2026-09-11",
+  "source_note": "Mirrors detailingsanctuary.co.uk/pricing.html. Edit here, then run: node scripts/pricing-sql.mjs > supabase/migrations/000X_pricing.sql and run that SQL in Supabase.",
+  "meta": {
+    "sizeStepPercent": 7,
+    "sizes": [
+      { "id": "standard", "name": "Standard car", "steps": 0 },
+      { "id": "large", "name": "Large (SUV / estate)", "steps": 1 },
+      { "id": "xl", "name": "Extra large (van / 7-seater)", "steps": 2 }
+    ],
+    "deposit": { "percent": 25, "minimumPence": 2500 },
+    "planDiscounts": [
+      { "id": "payg", "name": "Pay as you go", "percent": 0 },
+      { "id": "contracted", "name": "Contracted", "percent": 5 },
+      { "id": "paid-in-full", "name": "Paid in full", "percent": 10 }
+    ],
+    "termLabel": "four-month term"
+  },
   "services": [
     {
       "id": "valeting",
-      "name": "Valeting",
-      "note": "Prices are 'from' - final price depends on vehicle size and condition.",
+      "name": "Valeting & detailing",
+      "kind": "package",
+      "note": "Starting prices for a standard car in reasonable condition. Size and condition move the price.",
       "items": [
-        { "id": "valeting-maintenance", "tier": "Maintenance", "price_pence": 5500, "is_from": true, "unit": "per visit" },
-        { "id": "valeting-full", "tier": "Full Valet", "price_pence": 9000, "is_from": true },
-        { "id": "valeting-deep", "tier": "Deep Clean", "price_pence": 13500, "is_from": true },
-        { "id": "valeting-makeover", "tier": "Make Over", "price_pence": 28500, "is_from": true }
+        { "id": "valeting-maintenance", "tier": "Maintenance", "detail": "Up to 3 hours, every 2-4 weeks. A deep clean is usually needed first.", "price_pence": 5500, "is_from": true },
+        { "id": "valeting-full", "tier": "Full Valet", "detail": "Up to 4 hours, inside and out, finished with a ceramic sealant.", "price_pence": 10000, "is_from": true },
+        { "id": "valeting-deep", "tier": "Deep Clean", "detail": "Up to 5 hours. Full Valet plus seats shampooed or leather balmed, steam clean, tar and iron removal.", "price_pence": 13500, "is_from": true },
+        { "id": "valeting-makeover", "tier": "Make Over", "detail": "Up to 10 hours. Deep clean, gloss-enhancing machine polish and 12-month Fusso wax.", "price_pence": 28500, "is_from": true },
+        { "id": "sale-prep", "tier": "Car Sale Preparation", "detail": "Exterior detail, interior deep clean, engine bay, wheels and tyres, listing photos.", "price_pence": 18000, "is_from": true }
       ]
     },
     {
       "id": "ceramic",
-      "name": "Ceramic Coating",
-      "note": "Standalone service - not bundled with valeting.",
+      "name": "Ceramic coatings",
+      "kind": "coating",
+      "note": "Added on top of a detail. Every package includes decontamination and a Stage 1 machine polish. Inc VAT.",
       "items": [
-        { "id": "ceramic-2yr", "tier": "2 Year Coating", "price_pence": 35000 },
-        { "id": "ceramic-5yr", "tier": "5 Year Coating", "price_pence": 40000 },
-        { "id": "ceramic-7yr", "tier": "7 Year 10H Coating", "price_pence": 56500, "note": "inc VAT" },
-        { "id": "ceramic-window", "tier": "Window Ceramic Coating", "price_pence": 17500 }
+        { "id": "ceramic-2yr", "tier": "2 Year Ceramic Coating", "detail": "Up to 2 years. Enhanced gloss, water beading, UV protection.", "price_pence": 35000, "is_addon": true },
+        { "id": "ceramic-5yr", "tier": "5 Year Ceramic Coating", "detail": "Up to 5 years. Mirror finish, extreme water and dirt repellency.", "price_pence": 40000, "is_addon": true },
+        { "id": "ceramic-7yr", "tier": "Ultimate 7 Year (10H)", "detail": "Up to 7 years. Paintwork, wheels and exterior surfaces.", "price_pence": 56500, "is_addon": true },
+        { "id": "ceramic-window", "tier": "Window Ceramic Coating", "detail": "Up to 7 years or about 45,000 miles. Glass polished and decontaminated first.", "price_pence": 17500 },
+        { "id": "ceramic-alloys", "tier": "Alloy ceramic coating (set of 4)", "detail": "Brake dust rinses off.", "price_pence": 7000 },
+        { "id": "ceramic-leather", "tier": "Leather ceramic protection", "detail": "Applied to seats, ideal while they are new.", "price_pence": 7500 }
       ]
     },
     {
-      "id": "paint-correction",
-      "name": "Paint Correction",
-      "note": "Quoted per vehicle after inspection.",
+      "id": "addons",
+      "name": "Add-ons & specialist",
+      "kind": "addon",
+      "note": "Priced for a standard car and added to any valet or detail.",
       "items": [
-        { "id": "paint-correction-quote", "tier": "Quote per vehicle", "is_quote": true }
+        { "id": "addon-ozone", "tier": "Ozone odour treatment", "price_pence": 4500 },
+        { "id": "addon-pet-hair", "tier": "Pet hair removal", "price_pence": 2500, "unit": "per hour", "quantity_label": "hours" },
+        { "id": "addon-seats-out", "tier": "Seats-out detail", "price_pence": 4000 },
+        { "id": "addon-car-seat", "tier": "Car seat wash", "price_pence": 1500, "unit": "per seat", "quantity_label": "seats" },
+        { "id": "addon-steam", "tier": "Interior steam clean", "price_pence": 3500 },
+        { "id": "addon-headlights", "tier": "Headlight restoration", "detail": "Pair, sealed with a 1-year ceramic coating. 45-90 minutes.", "price_pence": 6000, "price_max_pence": 16500 },
+        { "id": "addon-exhaust", "tier": "Exhaust tip polish", "price_pence": 3500 }
       ]
     },
     {
-      "id": "maintenance-plan",
-      "name": "Maintenance Plan",
-      "note": "Contracted plans are priced per visit.",
+      "id": "correction",
+      "name": "Paint correction",
+      "kind": "correction",
+      "note": "Always quoted after seeing the paint. Stage 1 gloss enhancement is part of the Make Over.",
       "items": [
-        { "id": "plan-payg", "tier": "Pay as you go", "price_pence": 9000, "unit": "per visit" },
-        { "id": "plan-weekly", "tier": "Weekly (contract)", "price_pence": 3500, "unit": "per visit", "visits_per_year": 52 },
-        { "id": "plan-fortnightly", "tier": "Fortnightly (contract)", "price_pence": 4500, "unit": "per visit", "visits_per_year": 26 },
-        { "id": "plan-3weekly", "tier": "Every 3 weeks (contract)", "price_pence": 6000, "unit": "per visit", "visits_per_year": 17 },
-        { "id": "plan-monthly", "tier": "Monthly (contract)", "price_pence": 8000, "unit": "per visit", "visits_per_year": 12 }
+        { "id": "correction-stage2", "tier": "Stage 2 machine polish", "detail": "Two-stage correction, quoted after inspection.", "price_pence": 36500, "is_from": true },
+        { "id": "correction-motorbike", "tier": "Motorbike correction", "detail": "3-6 hours at your home.", "price_pence": 17500, "price_max_pence": 45000 },
+        { "id": "correction-multistage", "tier": "Multi-stage correction", "detail": "Full correction on neglected paint.", "is_quote": true }
+      ]
+    },
+    {
+      "id": "fleet",
+      "name": "Fleet (per vehicle)",
+      "kind": "fleet",
+      "note": "Vans, pickups and company cars on site, scheduled around downtime. Two or more vehicles at one address works out cheaper per vehicle.",
+      "items": [
+        { "id": "fleet-basic", "tier": "Basic Clean", "detail": "Safe exterior wash, wheels, tyres, quick interior.", "price_pence": 7900, "unit": "per vehicle", "quantity_label": "vehicles" },
+        { "id": "fleet-deep", "tier": "Deep Clean", "detail": "Everything in Basic plus paint decontamination and interior deep clean.", "price_pence": 14900, "unit": "per vehicle", "quantity_label": "vehicles" },
+        { "id": "fleet-ultimate", "tier": "Ultimate Clean", "detail": "Presentation standard.", "price_pence": 19900, "unit": "per vehicle", "quantity_label": "vehicles" }
+      ]
+    },
+    {
+      "id": "plans",
+      "name": "Maintenance plans",
+      "kind": "plan",
+      "note": "Needs a deep clean or detail first (from £135). A four-month term is 16 weekly, 8 fortnightly or 4 monthly visits. 5% off contracted, 10% off paid in full.",
+      "items": [
+        { "id": "plan-ext-weekly", "tier": "Exterior only, weekly", "detail": "Safe wash, alloys, drying, sealant.", "price_pence": 3250, "unit": "per visit", "visits_per_term": 16 },
+        { "id": "plan-ext-2weekly", "tier": "Exterior only, every 2 weeks", "price_pence": 4000, "unit": "per visit", "visits_per_term": 8 },
+        { "id": "plan-ext-monthly", "tier": "Exterior only, monthly", "price_pence": 6500, "unit": "per visit", "visits_per_term": 4 },
+        { "id": "plan-int-weekly", "tier": "Interior & exterior, weekly", "detail": "Adds interior vacuum and wipe-down.", "price_pence": 4500, "unit": "per visit", "visits_per_term": 16 },
+        { "id": "plan-int-2weekly", "tier": "Interior & exterior, every 2 weeks", "price_pence": 6000, "unit": "per visit", "visits_per_term": 8 },
+        { "id": "plan-int-monthly", "tier": "Interior & exterior, monthly", "price_pence": 8500, "unit": "per visit", "visits_per_term": 4 }
       ]
     }
   ]

@@ -168,8 +168,14 @@ background key after 90 days of no use, or after a password change), just sign i
 
 ## 7. Changing things later
 
-- **Prices:** Supabase > Table editor > `pricing_items`. Edit `price_pence` (in pence: 9000 = £90),
-  `tier`, or set `active` to false to hide a row. The app reads this table live.
+- **Prices:** two ways.
+  - Quick tweak: Supabase > Table editor > `pricing_items`. Edit `price_pence` (in pence: 10000 = £100),
+    `price_max_pence` for a range, `tier` for the name, or set `active` to false to hide a row. The app
+    reads this table live.
+  - Bigger change (new services, new sizes, deposit rule): edit `config/pricing.json`, run
+    `node scripts/pricing-sql.mjs > supabase/migrations/000X_pricing.sql`, paste that file into the
+    Supabase SQL editor and run it, then commit and push. Vehicle sizes, the size percentage, deposit
+    and plan discounts live in the `meta` block of that JSON (stored as the `pricing` row of `app_settings`).
 - **Home base / hours / lead time:** `app_settings` table, edit the JSON in `value`.
   `leadMinutes` is how far ahead to warn (30), `thresholdMm` is how much rain counts (0.1 mm per
   15 minutes = anything at all; raise it to 0.3 or so if drizzle alerts get annoying),
