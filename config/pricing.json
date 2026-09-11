@@ -15,7 +15,8 @@
       { "id": "contracted", "name": "Contracted", "percent": 5 },
       { "id": "paid-in-full", "name": "Paid in full", "percent": 10 }
     ],
-    "termLabel": "four-month term"
+    "termLabel": "four-month term",
+    "quoteValidDays": 30
   },
   "services": [
     {

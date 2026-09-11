@@ -39,9 +39,19 @@ export async function graphFetch<T>(
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Microsoft Graph ${res.status}: ${text.slice(0, 300)}`);
+    throw new GraphError(res.status, `Microsoft Graph ${res.status}: ${text.slice(0, 300)}`);
   }
+  if (res.status === 202 || res.status === 204) return undefined as T;
   return (await res.json()) as T;
+}
+
+export class GraphError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
 }
 
 /** All events overlapping [startIso, endIso). Instances of recurring events are expanded by Graph. */

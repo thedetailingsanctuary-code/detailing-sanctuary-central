@@ -49,8 +49,9 @@ This is the "lock" on the app. Only the one account you name here can get in.
    Copy the **Value** column immediately (it is hidden later) -> `MS_CLIENT_SECRET`.
    Put a reminder in your calendar for the expiry date - you will need to make a new one then.
 5. **API permissions > Add a permission > Microsoft Graph > Delegated permissions**. Tick:
-   `Calendars.Read`, `User.Read`, `offline_access`, `openid`, `profile`, `email`. Add them, then click
-   **Grant admin consent for <your organisation>** so you are never asked again on the phone.
+   `Calendars.Read`, `Mail.Send`, `User.Read`, `offline_access`, `openid`, `profile`, `email`. Add them,
+   then click **Grant admin consent for <your organisation>** so you are never asked again on the phone.
+   (`Mail.Send` is what lets the Quote screen email a quote from your own mailbox.)
 6. `ALLOWED_USER_EMAIL` = the sign-in address of the account whose calendar has the bookings
    (for example `DetailMyCar@DetailingSanctuary.co.uk`). Only this address will be let in.
 7. Optional extra lock: **Enterprise applications > Detailing Sanctuary Central > Properties**, set

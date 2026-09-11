@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { safeParse, writeLocal } from "@/lib/client-hooks";
+import { errorMessage, fetchJson, safeParse, writeLocal } from "@/lib/client-hooks";
 import {
   formatGBP,
   priceItem,
-  quoteText,
   summariseQuote,
   totalLabel,
   type PlanDiscount,
@@ -12,8 +11,9 @@ import {
   type PricingItem,
   type PricingService,
   type QuoteLine,
+  type QuoteSummary,
 } from "@/lib/pricing-types";
-import { INSTAGRAM_URL, WEBSITE_URL } from "./QuickLinks";
+import { INSTAGRAM_URL } from "./QuickLinks";
 
 const KEY = "dsc_quote_v2";
 type Saved = { sizeId: string; lines: QuoteLine[] };
@@ -35,11 +35,12 @@ const useIsClient = () =>
 
 export function PricingCalculator({ data }: { data: PricingData }) {
   const isClient = useIsClient();
-  const [sizeId, setSizeId] = useState<string>(() => (typeof window === "undefined" ? "" : readSaved()?.sizeId) || data.meta.sizes[0]?.id || "standard");
+  const [sizeId, setSizeId] = useState<string>(
+    () => (typeof window === "undefined" ? "" : readSaved()?.sizeId) || data.meta.sizes[0]?.id || "standard",
+  );
   const [lines, setLines] = useState<QuoteLine[]>(() => (typeof window === "undefined" ? [] : (readSaved()?.lines ?? [])));
   const [openService, setOpenService] = useState<string | null>(data.services[0]?.id ?? null);
   const [sheet, setSheet] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     writeLocal(KEY, { sizeId, lines } satisfies Saved);
@@ -71,21 +72,6 @@ export function PricingCalculator({ data }: { data: PricingData }) {
     setSheet(false);
   }
 
-  async function share() {
-    const text = quoteText(quote, data.meta, { website: WEBSITE_URL, instagram: INSTAGRAM_URL });
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title: "Detailing Sanctuary quote", text });
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      setToast("Quote copied. Paste it into a message.");
-    } catch {
-      setToast("Could not share on this device.");
-    }
-    setTimeout(() => setToast(null), 2500);
-  }
-
   if (!isClient) {
     return <p className="card p-6 text-center text-sm text-fg-muted">Loading price list...</p>;
   }
@@ -104,7 +90,9 @@ export function PricingCalculator({ data }: { data: PricingData }) {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-xs text-fg-muted">Each size step adds {data.meta.sizeStepPercent}% to valeting, coatings and add-ons, rounded up.</p>
+        <p className="mt-2 text-xs text-fg-muted">
+          Each size step adds {data.meta.sizeStepPercent}% to valeting, coatings and add-ons, rounded up.
+        </p>
       </section>
 
       <section className="space-y-2">
@@ -146,7 +134,7 @@ export function PricingCalculator({ data }: { data: PricingData }) {
                 {count === 0 ? "Nothing added yet" : total || (quote.plans.length ? "Plan selected" : "")}
               </span>
             </span>
-            {count > 0 && <span className="btn btn-gold min-h-11 px-4 text-sm">View</span>}
+            {count > 0 && <span className="btn btn-gold min-h-11 px-4 text-sm">Next</span>}
           </button>
         </div>
       </div>
@@ -155,11 +143,11 @@ export function PricingCalculator({ data }: { data: PricingData }) {
         <QuoteSheet
           quote={quote}
           data={data}
+          lines={lines}
+          sizeId={sizeId}
           onClose={() => setSheet(false)}
           onRemove={(id) => setLines((prev) => prev.filter((l) => l.itemId !== id))}
           onClear={clear}
-          onShare={share}
-          toast={toast}
         />
       )}
     </div>
@@ -198,7 +186,16 @@ function ServiceGroup({
         </span>
         <span className="flex shrink-0 items-center gap-2">
           {picked > 0 && <span className="pill border-gold/60 text-gold">{picked} added</span>}
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-fg-muted transition-transform ${open ? "rotate-180" : ""}`} aria-hidden>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className={`text-fg-muted transition-transform ${open ? "rotate-180" : ""}`}
+            aria-hidden
+          >
             <path d="m6 9 6 6 6-6" />
           </svg>
         </span>
@@ -208,14 +205,18 @@ function ServiceGroup({
           {service.items.map((item) => {
             const line = selected.get(item.id) ?? null;
             const discount: PlanDiscount | null =
-              item.kind === "plan" ? (data.meta.planDiscounts.find((d) => d.id === line?.discountId) ?? data.meta.planDiscounts[0] ?? null) : null;
+              item.kind === "plan"
+                ? (data.meta.planDiscounts.find((d) => d.id === line?.discountId) ?? data.meta.planDiscounts[0] ?? null)
+                : null;
             const priced = priceItem(item, data.meta, size, line?.quantity ?? 1, discount);
             const on = Boolean(line);
             return (
               <li key={item.id} className={`border-b border-line last:border-b-0 ${on ? "bg-surface-2" : ""}`}>
                 <button type="button" onClick={() => onToggleItem(item)} className="flex w-full items-center gap-3 p-3 text-left" aria-pressed={on}>
                   <span
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${on ? "border-gold bg-gold text-ink" : "border-line-strong text-transparent"}`}
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${
+                      on ? "border-gold bg-gold text-ink" : "border-line-strong text-transparent"
+                    }`}
                     aria-hidden
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -255,7 +256,13 @@ function ServiceGroup({
                   <div className="space-y-2 px-3 pb-3 pl-12">
                     <div className="flex flex-wrap gap-2">
                       {data.meta.planDiscounts.map((d) => (
-                        <button key={d.id} type="button" className="chip min-h-9 text-xs" data-active={d.id === discount?.id} onClick={() => onDiscount(item.id, d.id)}>
+                        <button
+                          key={d.id}
+                          type="button"
+                          className="chip min-h-9 text-xs"
+                          data-active={d.id === discount?.id}
+                          onClick={() => onDiscount(item.id, d.id)}
+                        >
                           {d.name}
                           {d.percent ? ` -${d.percent}%` : ""}
                         </button>
@@ -277,105 +284,235 @@ function ServiceGroup({
   );
 }
 
+type SendResult = { quoteId: string | null; text: string; waUrl: string | null; emailSent: boolean };
+type Step = "summary" | "send" | "sent";
+
 function QuoteSheet({
   quote,
   data,
+  lines,
+  sizeId,
   onClose,
   onRemove,
   onClear,
-  onShare,
-  toast,
 }: {
-  quote: ReturnType<typeof summariseQuote>;
+  quote: QuoteSummary;
   data: PricingData;
+  lines: QuoteLine[];
+  sizeId: string;
   onClose: () => void;
   onRemove: (id: string) => void;
   onClear: () => void;
-  onShare: () => void;
-  toast: string | null;
 }) {
+  const [step, setStep] = useState<Step>("summary");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [vehicle, setVehicle] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<string | null>(null);
   const total = totalLabel(quote);
+
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+  const phoneOk = phone.replace(/\D/g, "").length >= 10;
+
+  async function submit(channel: "email" | "whatsapp" | "text") {
+    setBusy(channel === "email" ? "Sending email..." : "Preparing...");
+    setError(null);
+    try {
+      const r = await fetchJson<SendResult>("/api/quotes", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ customer: { name, email, phone }, vehicle, note, sizeId, lines, channel }),
+      });
+      if (channel === "email") {
+        setDone(`Quote emailed to ${name.trim()} at ${email.trim()}. A copy is in your Outlook Sent Items.`);
+        setStep("sent");
+      } else if (channel === "whatsapp" && r.waUrl) {
+        window.open(r.waUrl, "_blank", "noopener");
+        setDone(`WhatsApp opened with the quote for ${name.trim()}. Press send in WhatsApp.`);
+        setStep("sent");
+      } else {
+        if (typeof navigator !== "undefined" && navigator.share) {
+          await navigator.share({ title: "Detailing Sanctuary quote", text: r.text });
+          setDone(`Quote shared for ${name.trim()}.`);
+        } else {
+          await navigator.clipboard.writeText(r.text);
+          setDone("Quote copied. Paste it into any message.");
+        }
+        setStep("sent");
+      }
+    } catch (e) {
+      setError(errorMessage(e, "Could not send the quote"));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-40 flex flex-col justify-end bg-black/70" role="dialog" aria-modal="true" aria-label="Quote">
       <button type="button" className="flex-1" onClick={onClose} aria-label="Close" />
-      <div className="card max-h-[85dvh] overflow-y-auto rounded-b-none border-b-0 p-4" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}>
+      <div
+        className="card max-h-[88dvh] overflow-y-auto rounded-b-none border-b-0 p-4"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
+      >
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-xl uppercase">Quote</h2>
+          <h2 className="font-display text-xl uppercase">
+            {step === "summary" ? "Quote" : step === "send" ? "Send to customer" : "Sent"}
+          </h2>
           <span className="pill">{quote.size.name}</span>
         </div>
 
-        {quote.oneOff.length > 0 && (
-          <ul className="mt-3 divide-y divide-line">
-            {quote.oneOff.map((l) => (
-              <li key={l.item.id} className="flex items-center gap-3 py-2">
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-display uppercase">
-                    {l.item.tier}
-                    {l.item.quantityLabel && l.quantity > 1 ? ` x${l.quantity}` : ""}
-                  </span>
-                </span>
-                <span className="font-display text-gold">{l.label}</span>
-                <button type="button" onClick={() => onRemove(l.item.id)} className="btn btn-ghost min-h-9 px-2 text-xs" aria-label={`Remove ${l.item.tier}`}>
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {quote.oneOff.length > 0 && (
-          <div className="mt-3 flex items-end justify-between border-t border-line pt-3">
-            <span className="font-display text-sm uppercase tracking-[0.2em] text-fg-muted">Total</span>
-            <span className="font-display text-3xl leading-none text-gold">{total}</span>
-          </div>
-        )}
-
-        {quote.plans.length > 0 && (
-          <div className="mt-3 border-t border-line pt-3">
-            <h3 className="font-display text-sm uppercase tracking-[0.2em] text-fg-muted">Ongoing plan</h3>
-            {quote.plans.map((l) => (
-              <div key={l.item.id} className="mt-1 flex items-start gap-3">
-                <span className="min-w-0 flex-1 text-sm">
-                  <span className="block font-display uppercase">{l.item.tier}</span>
-                  <span className="text-fg-dim">
-                    {l.discount?.name}: {l.minPence != null ? formatGBP(l.minPence) : "-"} per visit
-                    {l.termPence != null ? `, ${formatGBP(l.termPence)} per ${data.meta.termLabel}` : ""}
-                  </span>
-                </span>
-                <button type="button" onClick={() => onRemove(l.item.id)} className="btn btn-ghost min-h-9 px-2 text-xs">
-                  Remove
-                </button>
+        {step === "summary" && (
+          <>
+            {quote.oneOff.length > 0 && (
+              <ul className="mt-3 divide-y divide-line">
+                {quote.oneOff.map((l) => (
+                  <li key={l.item.id} className="flex items-center gap-3 py-2">
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-display uppercase">
+                        {l.item.tier}
+                        {l.item.quantityLabel && l.quantity > 1 ? ` x${l.quantity}` : ""}
+                      </span>
+                    </span>
+                    <span className="font-display text-gold">{l.label}</span>
+                    <button type="button" onClick={() => onRemove(l.item.id)} className="btn btn-ghost min-h-9 px-2 text-xs" aria-label={`Remove ${l.item.tier}`}>
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {quote.oneOff.length > 0 && (
+              <div className="mt-3 flex items-end justify-between border-t border-line pt-3">
+                <span className="font-display text-sm uppercase tracking-[0.2em] text-fg-muted">Total</span>
+                <span className="font-display text-3xl leading-none text-gold">{total}</span>
               </div>
-            ))}
+            )}
+            {quote.plans.length > 0 && (
+              <div className="mt-3 border-t border-line pt-3">
+                <h3 className="font-display text-sm uppercase tracking-[0.2em] text-fg-muted">Ongoing plan</h3>
+                {quote.plans.map((l) => (
+                  <div key={l.item.id} className="mt-1 flex items-start gap-3">
+                    <span className="min-w-0 flex-1 text-sm">
+                      <span className="block font-display uppercase">{l.item.tier}</span>
+                      <span className="text-fg-dim">
+                        {l.discount?.name}: {l.minPence != null ? formatGBP(l.minPence) : "-"} per visit
+                        {l.termPence != null ? `, ${formatGBP(l.termPence)} per ${data.meta.termLabel}` : ""}
+                      </span>
+                    </span>
+                    <button type="button" onClick={() => onRemove(l.item.id)} className="btn btn-ghost min-h-9 px-2 text-xs">
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {quote.depositPence > 0 && (
+              <p className="mt-3 text-xs text-fg-muted">
+                {data.meta.deposit.percent}% deposit to book: {formatGBP(quote.depositPence)} (comes off the final bill).
+                {quote.hasFrom ? " Starting prices; condition can move them." : ""}
+              </p>
+            )}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button type="button" className="btn btn-gold" onClick={() => setStep("send")}>
+                Next: send it
+              </button>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener" className="btn btn-ghost">
+                <InstagramIcon /> Instagram
+              </a>
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <button type="button" className="btn btn-ghost" onClick={onClose}>
+                Keep adding
+              </button>
+              <button type="button" className="btn btn-ghost text-danger" onClick={onClear}>
+                Clear
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === "send" && (
+          <form
+            className="mt-3 space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (emailOk) void submit("email");
+            }}
+          >
+            <Field label="Customer name" required>
+              <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="Jane Smith" required />
+            </Field>
+            <Field label="Email" hint="for Send by email">
+              <input className="input" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" placeholder="jane@example.com" />
+            </Field>
+            <Field label="Mobile" hint="for Send by WhatsApp">
+              <input className="input" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" placeholder="07700 900000" />
+            </Field>
+            <Field label="Vehicle" hint="optional">
+              <input className="input" value={vehicle} onChange={(e) => setVehicle(e.target.value)} placeholder="Black BMW 3 Series" />
+            </Field>
+            <Field label="Message to customer" hint="optional">
+              <textarea className="input min-h-20" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Happy to do this Saturday morning if that suits." />
+            </Field>
+
+            <p className="text-xs text-fg-muted">
+              Sending: {quote.oneOff.length + quote.plans.length} item{quote.oneOff.length + quote.plans.length === 1 ? "" : "s"}
+              {total ? `, ${total}` : ""}, {quote.size.name}.
+            </p>
+
+            {error && <p className="rounded-lg border border-danger/50 p-3 text-sm text-danger">{error}</p>}
+
+            <div className="grid grid-cols-2 gap-2">
+              <button type="submit" className="btn btn-gold" disabled={!name.trim() || !emailOk || Boolean(busy)}>
+                {busy === "Sending email..." ? "Sending..." : "Send by email"}
+              </button>
+              <button type="button" className="btn btn-ghost" disabled={!name.trim() || !phoneOk || Boolean(busy)} onClick={() => void submit("whatsapp")}>
+                Send by WhatsApp
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" className="btn btn-ghost" disabled={!name.trim() || Boolean(busy)} onClick={() => void submit("text")}>
+                Share / copy text
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={() => setStep("summary")}>
+                Back
+              </button>
+            </div>
+          </form>
+        )}
+
+        {step === "sent" && (
+          <div className="mt-3 space-y-4">
+            <p className="rounded-lg border border-ok/50 p-3 text-sm text-ok">{done}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" className="btn btn-gold" onClick={onClear}>
+                New quote
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={onClose}>
+                Done
+              </button>
+            </div>
           </div>
         )}
-
-        {quote.depositPence > 0 && (
-          <p className="mt-3 text-xs text-fg-muted">
-            {data.meta.deposit.percent}% deposit to book: {formatGBP(quote.depositPence)} (comes off the final bill).
-            {quote.hasFrom ? " Starting prices; condition can move them." : ""}
-          </p>
-        )}
-
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <button type="button" className="btn btn-gold" onClick={onShare}>
-            Share quote
-          </button>
-          <a href={INSTAGRAM_URL} target="_blank" rel="noopener" className="btn btn-ghost">
-            <InstagramIcon /> Instagram
-          </a>
-        </div>
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Keep adding
-          </button>
-          <button type="button" className="btn btn-ghost text-danger" onClick={onClear}>
-            Clear
-          </button>
-        </div>
-        {toast && <p className="mt-3 text-center text-sm text-fg-dim">{toast}</p>}
       </div>
     </div>
+  );
+}
+
+function Field({ label, hint, required, children }: { label: string; hint?: string; required?: boolean; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block font-display text-xs uppercase tracking-[0.2em] text-fg-muted">
+        {label}
+        {required ? " *" : ""}
+        {hint ? <span className="ml-2 normal-case tracking-normal text-fg-muted/70">({hint})</span> : null}
+      </span>
+      {children}
+    </label>
   );
 }
 

@@ -41,6 +41,8 @@ export type PricingMeta = {
   deposit: { percent: number; minimumPence: number };
   planDiscounts: PlanDiscount[];
   termLabel: string;
+  /** How long an emailed quote is honoured for. */
+  quoteValidDays?: number;
 };
 
 export type PricingData = {
@@ -64,6 +66,7 @@ export const DEFAULT_META: PricingMeta = {
     { id: "paid-in-full", name: "Paid in full", percent: 10 },
   ],
   termLabel: "four-month term",
+  quoteValidDays: 30,
 };
 
 /** Kinds whose prices scale with vehicle size ("each size step adds 7%, rounded up"). */
@@ -194,7 +197,7 @@ export function totalLabel(q: QuoteSummary): string {
 /** Plain-text version of the quote for WhatsApp / SMS / email. */
 export function quoteText(q: QuoteSummary, meta: PricingMeta, links: { website: string; instagram: string }): string {
   const out: string[] = [];
-  out.push(`Detailing Sanctuary quote (${q.size.name.toLowerCase()})`);
+  out.push(`Detailing Sanctuary quote - ${q.size.name}`);
   out.push("");
   for (const l of q.oneOff) {
     const qty = l.item.quantityLabel && l.quantity > 1 ? ` x${l.quantity}` : "";

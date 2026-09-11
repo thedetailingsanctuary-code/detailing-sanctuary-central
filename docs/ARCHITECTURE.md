@@ -62,6 +62,15 @@ arrive through the same service worker.
 without touching code. The same rows are meant to feed a future "pick a service -> price auto-fills"
 step in the booking flow.
 
+## Quotes
+
+The Quote screen builds a multi-item quote (vehicle size, packages, coatings, add-ons, plans) and can
+send it three ways: by email from your own Microsoft 365 mailbox (Graph `sendMail`, needs the
+`Mail.Send` permission, copy lands in Sent Items), by WhatsApp (opens the app with the text ready),
+or as shared/copied text. Every quote is stored in the `quotes` table with the customer details and
+totals, so a "past quotes" screen is a small addition later. The server recalculates the totals from
+the live price list before sending, so the phone can never send a stale or edited price.
+
 ## The door left open for phase 2 (quick-add booking)
 
 - `src/lib/calendar/graph.ts` is a general Graph client (`graphFetch`) - adding a `POST /me/events`

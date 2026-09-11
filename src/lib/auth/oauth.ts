@@ -8,6 +8,7 @@ import { env } from "@/lib/env";
  * One client, one set of scopes, used for both the interactive sign-in and the
  * background rain-check job. Phase 2 (writing bookings) only needs
  * "Calendars.ReadWrite" added to GRAPH_SCOPES and a fresh consent.
+ * "Mail.Send" lets the quote builder email quotes from the signed-in mailbox.
  */
 export const GRAPH_SCOPES = [
   "openid",
@@ -16,6 +17,7 @@ export const GRAPH_SCOPES = [
   "offline_access",
   "User.Read",
   "Calendars.Read",
+  "Mail.Send",
 ];
 
 const authority = () => `https://login.microsoftonline.com/${env.ms.tenantId}`;
