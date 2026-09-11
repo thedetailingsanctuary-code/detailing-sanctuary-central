@@ -181,5 +181,8 @@ background key after 90 days of no use, or after a password change), just sign i
   `leadMinutes` is how far ahead to warn (30), `thresholdMm` is how much rain counts (0.1 mm per
   15 minutes = anything at all; raise it to 0.3 or so if drizzle alerts get annoying),
   `cooldownMinutes` stops repeat alerts for the same place (90).
+- **Stock:** the chemical list, per-job percentages and matching rules are all edited in the app
+  (Stock tab). The starting list came from `supabase/migrations/0004_stock.sql`; run that file once
+  in the Supabase SQL editor to create the tables and seed it.
 - **Weather source:** to move to AccuWeather MinuteCast later, add a provider file in
   `src/lib/weather/`, register it in `index.ts`, and set `WEATHER_PROVIDER`. Nothing else changes.

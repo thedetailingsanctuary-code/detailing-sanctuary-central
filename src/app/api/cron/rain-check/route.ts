@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { apiError, NO_STORE } from "@/lib/api";
 import { env } from "@/lib/env";
 import { runRainCheck } from "@/lib/rain/check";
+import { runStockDeductions } from "@/lib/stock/consume";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -35,7 +36,14 @@ async function handle(req: NextRequest) {
   try {
     const force = req.nextUrl.searchParams.get("force") === "1";
     const result = await runRainCheck({ force });
-    return NextResponse.json(result, NO_STORE);
+    // Same 15-minute tick also takes finished jobs' chemicals off the shelf.
+    let stock: Awaited<ReturnType<typeof runStockDeductions>> | { error: string };
+    try {
+      stock = await runStockDeductions();
+    } catch (e) {
+      stock = { error: e instanceof Error ? e.message : "stock deduction failed" };
+    }
+    return NextResponse.json({ ...result, stock }, NO_STORE);
   } catch (e) {
     return apiError(e);
   }

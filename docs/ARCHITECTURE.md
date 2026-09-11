@@ -71,6 +71,19 @@ or as shared/copied text. Every quote is stored in the `quotes` table with the c
 totals, so a "past quotes" screen is a small addition later. The server recalculates the totals from
 the live price list before sending, so the phone can never send a stale or edited price.
 
+## Stock (chemicals)
+
+Each chemical is tracked as a percentage of the current bottle (`stock_items`). Every job type
+(Full Valet, Deep Clean, ceramic job and so on) has a list of "this job uses X% of that bottle"
+(`stock_usage`), edited on the Stock screen under Per job. The same 15-minute scheduled check that
+does the rain watch also looks back 36 hours for calendar jobs that have finished, matches the job
+title to a job type using the word rules under Stock > Rules, takes the percentages off, and logs
+each deduction (`stock_events`). Jobs that match nothing are listed on the Stock screen so you can
+pick a type once; the choice is remembered as a new rule. When anything drops to its minimum
+(10% by default) one push goes out listing the low items, then not again for 7 days unless the
+bottle is restocked. Levels can be corrected by hand at any time (slider, plus and minus buttons,
+or "New bottle").
+
 ## The door left open for phase 2 (quick-add booking)
 
 - `src/lib/calendar/graph.ts` is a general Graph client (`graphFetch`) - adding a `POST /me/events`

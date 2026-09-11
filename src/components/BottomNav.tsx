@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 const ITEMS = [
   { href: "/", label: "Today", icon: HomeIcon },
   { href: "/pricing", label: "Quote", icon: TagIcon },
+  { href: "/stock", label: "Stock", icon: BottleIcon },
   { href: "/gallery", label: "Gallery", icon: PhotoIcon },
   { href: "/settings", label: "Settings", icon: CogIcon },
 ] as const;
@@ -17,14 +18,14 @@ export function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       aria-label="Main"
     >
-      <ul className="mx-auto grid max-w-lg grid-cols-4">
+      <ul className="mx-auto grid max-w-lg grid-cols-5">
         {ITEMS.map(({ href, label, icon: Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
             <li key={href}>
               <Link
                 href={href}
-                className={`flex h-16 flex-col items-center justify-center gap-1 font-display text-[0.7rem] uppercase tracking-widest ${
+                className={`flex h-16 flex-col items-center justify-center gap-1 font-display text-[0.65rem] uppercase tracking-widest ${
                   active ? "text-gold" : "text-fg-muted"
                 }`}
                 aria-current={active ? "page" : undefined}
@@ -53,6 +54,14 @@ function TagIcon() {
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
       <path d="M3 12V4h8l9 9-8 8-9-9Z" />
       <circle cx="7.5" cy="8.5" r="1.3" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function BottleIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <path d="M10 3h4v3l2 3v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3V3Z" />
+      <path d="M8 14h8" />
     </svg>
   );
 }
