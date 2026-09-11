@@ -53,3 +53,6 @@ android/*.idsig
 
 # Large AI source render (keep locally, not in git)
 assets/store/feature-graphic-source.png
+
+.vercel
+.env*
