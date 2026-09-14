@@ -32,3 +32,23 @@ export type Schedule = {
   needsReauth?: boolean;
   error?: string;
 };
+
+export type MonthDay = {
+  /** "YYYY-MM-DD" (London). */
+  dateKey: string;
+  jobs: Job[];
+  /** Booked minutes that fall inside this day. */
+  minutes: number;
+};
+
+export type MonthView = {
+  /** "YYYY-MM" (London). */
+  monthKey: string;
+  generatedAt: string;
+  fetchedAt: string;
+  source: ScheduleSource;
+  days: MonthDay[];
+  totals: { jobs: number; bookedDays: number; hours: number };
+  needsReauth?: boolean;
+  error?: string;
+};

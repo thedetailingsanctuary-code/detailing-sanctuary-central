@@ -25,7 +25,7 @@
   "appVersionCode": 1,
   "shortcuts": [
     { "name": "Prices", "shortName": "Prices", "url": "/pricing", "chosenIconUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/icons/icon-192.png" },
-    { "name": "Gallery", "shortName": "Gallery", "url": "/gallery", "chosenIconUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/icons/icon-192.png" }
+    { "name": "Calendar", "shortName": "Calendar", "url": "/calendar", "chosenIconUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/icons/icon-192.png" }
   ],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://REPLACE-WITH-YOUR-APP-DOMAIN/manifest.webmanifest",

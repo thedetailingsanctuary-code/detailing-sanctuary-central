@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "Detailing Sanctuary Central",
     short_name: "DS Central",
-    description: "Schedule, rain alerts, prices and gallery for Detailing Sanctuary.",
+    description: "Schedule, month calendar, rain alerts and prices for Detailing Sanctuary.",
     start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",
@@ -22,7 +22,7 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     shortcuts: [
       { name: "Prices", url: "/pricing", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
-      { name: "Gallery", url: "/gallery", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
+      { name: "Calendar", url: "/calendar", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
     ],
   };
 }

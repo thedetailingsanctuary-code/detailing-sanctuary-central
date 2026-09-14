@@ -1,4 +1,4 @@
-import { addDays, londonDateKey, londonMidnight } from "@/lib/time";
+import { addDays, londonDateKey, londonMidnight, monthDayKeys } from "@/lib/time";
 import type { Job } from "./types";
 
 /** Sample jobs for local preview only (no real customer data). */
@@ -63,4 +63,45 @@ export function demoJobs(now: Date): Job[] {
       end: at(day1, 15, 45),
     }),
   ];
+}
+
+/** Sample month for local preview only (no real customer data). */
+export function demoMonthJobs(monthKey: string): Job[] {
+  const services = [
+    { name: "Full Valet", hours: 3 },
+    { name: "Maintenance Wash", hours: 1.5 },
+    { name: "Deep Clean Service", hours: 5 },
+    { name: "Stage 1/2 + Ceramic Coating", hours: 7 },
+    { name: "Car Sale Prep", hours: 4 },
+  ];
+  const places = ["Codsall WV8 1PX", "Dudley DY1 1HL", "Tettenhall WV6 8AB", "Birmingham B1 1BB"];
+  const out: Job[] = [];
+
+  for (const dateKey of monthDayKeys(monthKey)) {
+    const day = Number(dateKey.slice(-2));
+    if (day % 7 === 0) continue; // a day off
+    const base = londonMidnight(dateKey).getTime();
+    const count = day % 5 === 0 ? 2 : 1;
+    for (let i = 0; i < count; i += 1) {
+      const svc = services[(day + i) % services.length];
+      const startHour = i === 0 ? 8.5 : 13.5;
+      out.push({
+        id: `demo-${dateKey}-${i}`,
+        service: svc.name,
+        customerName: `Sample Customer ${day}${i ? "b" : ""}`,
+        phone: "+447700900001",
+        email: null,
+        address: `${places[(day + i) % places.length]}, UK`,
+        postcode: places[(day + i) % places.length].split(" ").slice(-2).join(" "),
+        coordinates: null,
+        start: new Date(base + startHour * 3600000).toISOString(),
+        end: new Date(base + (startHour + svc.hours) * 3600000).toISOString(),
+        isAllDay: false,
+        webLink: null,
+        notes: null,
+        rawSubject: svc.name,
+      });
+    }
+  }
+  return out;
 }

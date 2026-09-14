@@ -6,7 +6,7 @@ you go, then enter them all into Vercel in section 5.
 
 | Account            | Used for                                  | Cost                                   |
 | ------------------ | ----------------------------------------- | -------------------------------------- |
-| Supabase           | Database + photo storage                  | Free tier is plenty                    |
+| Supabase           | Database + offline cache                  | Free tier is plenty                    |
 | Microsoft Entra ID | Sign-in + reading the Outlook calendar    | Included with Microsoft 365            |
 | Firebase           | Push notifications (rain alerts)          | Free (Spark plan)                      |
 | Vercel             | Hosting + scheduled rain check            | Free (Hobby) or Pro at about $20/month - see 5.3 |
@@ -20,7 +20,7 @@ you go, then enter them all into Vercel in section 5.
    set a strong database password (you will not need it day to day).
 2. When it finishes creating, open **SQL Editor** in the left menu, click **New query**, paste the whole
    contents of `supabase/migrations/0001_init.sql` from this project, and press **Run**. It creates the
-   tables, seeds the price list and settings, and creates the `gallery` photo bucket.
+   tables and seeds the price list and settings.
 3. Open **Project Settings > API** and copy:
    - **Project URL** -> `SUPABASE_URL`
    - **service_role** key (under "Project API keys", click reveal) -> `SUPABASE_SERVICE_ROLE_KEY`
@@ -160,7 +160,7 @@ about to rain wherever the app decided to look (the response tells you where and
    should appear within a few seconds.
 3. **Settings > Install on this phone** (or Chrome menu > Add to Home screen). Until the Play Store
    version exists, this installed PWA is the app.
-4. **Gallery > Add photos** to upload your first few work photos.
+4. **Calendar** shows the whole month from Outlook - tap any day to see that day's jobs.
 
 If the Today screen shows "Microsoft sign-in needs renewing" at any point (Microsoft expires the
 background key after 90 days of no use, or after a password change), just sign in again.

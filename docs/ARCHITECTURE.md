@@ -50,10 +50,24 @@ MinuteCast later means one new file and one environment variable; screens and th
 
 ## Offline
 
-A service worker (`public/sw.js`) keeps the last copy of the schedule, weather, prices and gallery
-listing, plus the app shell. The Today screen also keeps its last schedule in the phone's local storage
+A service worker (`public/sw.js`) keeps the last copy of the schedule, weather, prices and month
+calendar, plus the app shell. The Today screen also keeps its last schedule in the phone's local storage
 and shows it instantly with a "last copy from HH:MM" note when there is no signal. Push notifications
 arrive through the same service worker.
+
+## Calendar (the whole month)
+
+The Calendar screen asks `/api/calendar?month=YYYY-MM` for one month at a time. That route runs the
+same Graph `calendarView` call the Today screen uses, just over a wider date range, and parses the
+events with the same Wix-booking parser. Every fetched month is written to the `calendar_cache` table
+under the id `month-YYYY-MM` and to the phone's local storage, so a month you have already opened
+still shows with no signal (with a "last copy from ..." note).
+
+The grid is Monday-first UK time, one gold dot per job (a number once there are more than three),
+a gold outline on today and a filled gold square on the day you tap. Tapping a day lists that day's
+jobs with call, email, directions and "open in Outlook"; "Whole month" instead lists every booked day
+in order. The month heading counts the jobs, the booked days and the booked hours. Swiping left and
+right moves between months, as do the arrows.
 
 ## Prices
 
@@ -95,7 +109,7 @@ or "New bottle").
 ## Folder map
 
 ```
-src/app/                 screens (Today, Prices, Gallery, Settings, Login, Offline) and API routes
+src/app/                 screens (Today, Calendar, Prices, Stock, Settings, Login, Offline) and API routes
 src/components/          UI pieces
 src/lib/auth/            Microsoft sign-in, session cookie, encrypted token store
 src/lib/calendar/        Graph client, Wix-booking event parser, schedule builder, sample data

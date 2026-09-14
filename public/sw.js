@@ -1,12 +1,12 @@
 /* Detailing Sanctuary Central - service worker (offline cache + push). Plain JS, no build step. */
-const VERSION = "dsc-v1";
+const VERSION = "dsc-v2";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const API_CACHE = `${VERSION}-api`;
 const IMG_CACHE = `${VERSION}-img`;
 
 const PRECACHE = ["/offline", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/badge-96.png"];
-const CACHED_APIS = ["/api/schedule", "/api/weather", "/api/pricing", "/api/gallery", "/api/status", "/api/stock"];
+const CACHED_APIS = ["/api/schedule", "/api/weather", "/api/pricing", "/api/calendar", "/api/status", "/api/stock"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -58,7 +58,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
 
   if (url.origin !== self.location.origin) {
-    // Gallery images from Supabase storage.
+    // Images served from elsewhere (map tiles, storage).
     if (req.destination === "image") event.respondWith(cacheFirst(req, IMG_CACHE));
     return;
   }

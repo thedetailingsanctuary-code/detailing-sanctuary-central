@@ -10,9 +10,9 @@ export function QuickLinks() {
         <span className="font-display text-lg uppercase">Quote</span>
         <span className="text-[0.65rem] uppercase tracking-wider text-fg-muted">Build a price</span>
       </Link>
-      <Link href="/gallery" className="card flex min-h-20 flex-col items-center justify-center gap-1 p-3 text-center">
-        <span className="font-display text-lg uppercase">Gallery</span>
-        <span className="text-[0.65rem] uppercase tracking-wider text-fg-muted">Recent work</span>
+      <Link href="/calendar" className="card flex min-h-20 flex-col items-center justify-center gap-1 p-3 text-center">
+        <span className="font-display text-lg uppercase">Calendar</span>
+        <span className="text-[0.65rem] uppercase tracking-wider text-fg-muted">The whole month</span>
       </Link>
       <a
         href={WEBSITE_URL}

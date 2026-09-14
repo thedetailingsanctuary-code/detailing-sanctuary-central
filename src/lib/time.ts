@@ -119,3 +119,43 @@ export function minutesUntil(iso: string | Date, now: Date = new Date()): number
 export function sameLondonDay(a: string | Date, b: string | Date): boolean {
   return londonDateKey(new Date(a)) === londonDateKey(new Date(b));
 }
+
+/* ---- Month helpers (used by the Calendar screen) ---- */
+
+/** "YYYY-MM" for the London calendar month containing the instant. */
+export function londonMonthKey(d: Date = new Date()): string {
+  const p = londonParts(d);
+  return `${p.year}-${pad(p.month)}`;
+}
+
+/** "YYYY-MM" n months before/after the given one. */
+export function addMonths(monthKey: string, n: number): string {
+  const [y, m] = monthKey.split("-").map(Number);
+  const t = new Date(Date.UTC(y, m - 1 + n, 1));
+  return `${t.getUTCFullYear()}-${pad(t.getUTCMonth() + 1)}`;
+}
+
+/** Every day of the month as "YYYY-MM-DD", in order. */
+export function monthDayKeys(monthKey: string): string[] {
+  const [y, m] = monthKey.split("-").map(Number);
+  const count = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return Array.from({ length: count }, (_, i) => `${monthKey}-${pad(i + 1)}`);
+}
+
+/** "September 2026" */
+export function formatMonthLabel(monthKey: string): string {
+  return londonMidnight(`${monthKey}-01`).toLocaleDateString("en-GB", {
+    timeZone: LONDON_TZ,
+    month: "long",
+    year: "numeric",
+  });
+}
+
+/** 0 = Monday ... 6 = Sunday, for laying out a UK month grid. */
+export function mondayFirstIndex(dateKey: string): number {
+  return (londonParts(londonMidnight(dateKey)).weekday + 6) % 7;
+}
+
+export function monthKeyOf(dateKey: string): string {
+  return dateKey.slice(0, 7);
+}

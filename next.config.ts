@@ -4,9 +4,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // firebase-admin is a Node-only package; keep it out of the bundler.
   serverExternalPackages: ["firebase-admin"],
-  images: {
-    remotePatterns: [{ protocol: "https", hostname: "*.supabase.co" }],
-  },
   async headers() {
     return [
       {

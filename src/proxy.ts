@@ -1,5 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { NextResponse, type NextRequest } from "next/server";import { jwtVerify } from "jose";
 
 /**
  * The lock on the whole app. Every request that is not on the public list
@@ -15,7 +14,6 @@ const PUBLIC_PATHS: RegExp[] = [
   /^\/sw\.js$/,
   /^\/\.well-known\//,
   /^\/icons\//,
-  /^\/demo\//,
   /^\/favicon\.ico$/,
   /^\/robots\.txt$/,
 ];

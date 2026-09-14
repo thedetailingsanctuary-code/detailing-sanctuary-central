@@ -4,9 +4,9 @@ import { usePathname } from "next/navigation";
 
 const ITEMS = [
   { href: "/", label: "Today", icon: HomeIcon },
+  { href: "/calendar", label: "Calendar", icon: CalendarIcon },
   { href: "/pricing", label: "Quote", icon: TagIcon },
   { href: "/stock", label: "Stock", icon: BottleIcon },
-  { href: "/gallery", label: "Gallery", icon: PhotoIcon },
   { href: "/settings", label: "Settings", icon: CogIcon },
 ] as const;
 
@@ -65,12 +65,12 @@ function BottleIcon() {
     </svg>
   );
 }
-function PhotoIcon() {
+function CalendarIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="m5 17 5-5 4 4 2-2 3 3" />
-      <circle cx="16" cy="9" r="1.4" fill="currentColor" stroke="none" />
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 10h18M8 3v4M16 3v4" />
+      <rect x="7" y="13" width="3" height="3" rx="0.6" fill="currentColor" stroke="none" />
     </svg>
   );
 }

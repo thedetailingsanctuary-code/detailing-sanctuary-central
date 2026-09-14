@@ -18,7 +18,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: { default: "DS Central", template: "%s | DS Central" },
-  description: "Detailing Sanctuary operations hub: schedule, rain alerts, prices and gallery.",
+  description: "Detailing Sanctuary operations hub: schedule, month calendar, rain alerts and prices.",
   applicationName: "DS Central",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "DS Central" },
