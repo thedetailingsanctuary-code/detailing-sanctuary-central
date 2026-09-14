@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { apiError, NO_STORE } from "@/lib/api";
 import { env } from "@/lib/env";
 import { runRainCheck } from "@/lib/rain/check";
+import { alertPlansDue, syncPlanVisits } from "@/lib/plans/store";
 import { runStockDeductions } from "@/lib/stock/consume";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +44,16 @@ async function handle(req: NextRequest) {
     } catch (e) {
       stock = { error: e instanceof Error ? e.message : "stock deduction failed" };
     }
-    return NextResponse.json({ ...result, stock }, NO_STORE);
+    // ...and keeps maintenance plans ticked off, warning about visits that are due.
+    let plans: { synced: number; notified: string[] } | { error: string };
+    try {
+      const synced = await syncPlanVisits();
+      const alerted = await alertPlansDue();
+      plans = { synced: synced.added.length, notified: alerted.notified };
+    } catch (e) {
+      plans = { error: e instanceof Error ? e.message : "plan check failed" };
+    }
+    return NextResponse.json({ ...result, stock, plans }, NO_STORE);
   } catch (e) {
     return apiError(e);
   }
