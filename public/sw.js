@@ -6,7 +6,7 @@ const API_CACHE = `${VERSION}-api`;
 const IMG_CACHE = `${VERSION}-img`;
 
 const PRECACHE = ["/offline", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/badge-96.png"];
-const CACHED_APIS = ["/api/schedule", "/api/weather", "/api/pricing", "/api/calendar", "/api/plans", "/api/status", "/api/stock"];
+const CACHED_APIS = ["/api/schedule", "/api/weather", "/api/pricing", "/api/calendar", "/api/plans", "/api/spend", "/api/status", "/api/stock"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

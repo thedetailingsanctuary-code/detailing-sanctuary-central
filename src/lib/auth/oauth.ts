@@ -9,6 +9,8 @@ import { env } from "@/lib/env";
  * background rain-check job. Phase 2 (writing bookings) only needs
  * "Calendars.ReadWrite" added to GRAPH_SCOPES and a fresh consent.
  * "Mail.Send" lets the quote builder email quotes from the signed-in mailbox.
+ * "Mail.Read" lets the spend tracker read supplier order emails. It only ever
+ * searches for the suppliers listed in the "purchases" setting.
  */
 export const GRAPH_SCOPES = [
   "openid",
@@ -18,6 +20,7 @@ export const GRAPH_SCOPES = [
   "User.Read",
   "Calendars.Read",
   "Mail.Send",
+  "Mail.Read",
 ];
 
 const authority = () => `https://login.microsoftonline.com/${env.ms.tenantId}`;

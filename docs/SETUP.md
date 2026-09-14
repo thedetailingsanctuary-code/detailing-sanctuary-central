@@ -49,9 +49,10 @@ This is the "lock" on the app. Only the one account you name here can get in.
    Copy the **Value** column immediately (it is hidden later) -> `MS_CLIENT_SECRET`.
    Put a reminder in your calendar for the expiry date - you will need to make a new one then.
 5. **API permissions > Add a permission > Microsoft Graph > Delegated permissions**. Tick:
-   `Calendars.Read`, `Mail.Send`, `User.Read`, `offline_access`, `openid`, `profile`, `email`. Add them,
-   then click **Grant admin consent for <your organisation>** so you are never asked again on the phone.
-   (`Mail.Send` is what lets the Quote screen email a quote from your own mailbox.)
+   `Calendars.Read`, `Mail.Send`, `Mail.Read`, `User.Read`, `offline_access`, `openid`, `profile`, `email`.
+   Add them, then click **Grant admin consent for <your organisation>** so you are never asked again on
+   the phone. (`Mail.Send` lets the Quote screen email a quote from your own mailbox. `Mail.Read` lets the
+   Spend screen read your supplier order emails - it only ever searches for the suppliers you list.)
 6. `ALLOWED_USER_EMAIL` = the sign-in address of the account whose calendar has the bookings
    (for example `DetailMyCar@DetailingSanctuary.co.uk`). Only this address will be let in.
 7. Optional extra lock: **Enterprise applications > Detailing Sanctuary Central > Properties**, set
@@ -184,5 +185,9 @@ background key after 90 days of no use, or after a password change), just sign i
 - **Stock:** the chemical list, per-job percentages and matching rules are all edited in the app
   (Stock tab). The starting list came from `supabase/migrations/0004_stock.sql`; run that file once
   in the Supabase SQL editor to create the tables and seed it.
+- **Plans, photos and spend:** run `supabase/migrations/0005_plans_photos_spend.sql` once in the
+  Supabase SQL editor. It creates the plan tables, the private `job-photos` bucket and the purchases
+  table, and seeds the supplier list used by the Spend screen. Edit that supplier list later in
+  `app_settings` under the `purchases` key.
 - **Weather source:** to move to AccuWeather MinuteCast later, add a provider file in
   `src/lib/weather/`, register it in `index.ts`, and set `WEATHER_PROVIDER`. Nothing else changes.

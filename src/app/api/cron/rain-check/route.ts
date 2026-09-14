@@ -4,6 +4,7 @@ import { apiError, NO_STORE } from "@/lib/api";
 import { env } from "@/lib/env";
 import { runRainCheck } from "@/lib/rain/check";
 import { alertPlansDue, syncPlanVisits } from "@/lib/plans/store";
+import { maybeScanSupplierEmails } from "@/lib/spend/store";
 import { runStockDeductions } from "@/lib/stock/consume";
 
 export const dynamic = "force-dynamic";
@@ -53,7 +54,14 @@ async function handle(req: NextRequest) {
     } catch (e) {
       plans = { error: e instanceof Error ? e.message : "plan check failed" };
     }
-    return NextResponse.json({ ...result, stock, plans }, NO_STORE);
+    // ...and reads supplier order emails, but only twice a day.
+    let spend: Awaited<ReturnType<typeof maybeScanSupplierEmails>> | { error: string };
+    try {
+      spend = await maybeScanSupplierEmails();
+    } catch (e) {
+      spend = { error: e instanceof Error ? e.message : "spend scan failed" };
+    }
+    return NextResponse.json({ ...result, stock, plans, spend }, NO_STORE);
   } catch (e) {
     return apiError(e);
   }
