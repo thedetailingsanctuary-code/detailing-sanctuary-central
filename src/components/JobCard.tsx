@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { Job } from "@/lib/calendar/types";
 import { formatTime } from "@/lib/time";
+import { JobPhotos } from "./JobPhotos";
 
 export function mapsUrl(address: string): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
@@ -62,6 +63,10 @@ export function HeroJobCard({ job, status, now }: { job: Job; status: "now" | "n
       </div>
 
       {job.notes && <p className="mt-3 whitespace-pre-line text-sm text-fg-dim">{job.notes}</p>}
+
+      <div className="mt-3 border-t border-line pt-3">
+        <JobPhotos job={job} />
+      </div>
     </section>
   );
 }
@@ -125,6 +130,9 @@ export function JobRow({ job, muted = false }: { job: Job; muted?: boolean }) {
                 Open in Outlook
               </a>
             )}
+          </div>
+          <div className="border-t border-line pt-3">
+            <JobPhotos job={job} />
           </div>
         </div>
       )}
