@@ -126,6 +126,25 @@ read confidently is counted; one it cannot is listed under "needs a figure" rath
 and anything that is not really an order can be dismissed. Purchases can also be typed in by hand.
 The scan runs at most twice a day inside the scheduled check, or on demand from the screen.
 
+## Payments
+
+A payment request is a row in `payments`: who it is for, what it is for, how much, and a reference
+like `DS-7K4Q2`. If Square is connected the app also asks Square for a hosted payment page and stores
+its link. **No card details ever reach this app** - the customer pays on Square's own page, so there
+is nothing here that could leak them.
+
+The request goes out by email from your own mailbox (the same Graph `sendMail` the quotes use) or by
+WhatsApp, and can be copied as a plain link. Square then tells the app it has been paid through a
+webhook at `/api/payments/webhook` - public by necessity, so every request is checked against
+Square's HMAC signature and anything that does not match is thrown away. Because a webhook is only as
+reliable as its setup, the 15-minute check also asks Square directly about anything still unpaid, so
+payments are never missed even with no webhook configured at all. Either way a push goes out when
+money lands, and one nudge a day lists requests that have gone quiet.
+
+Square sits behind a small `PaymentProvider` interface (`src/lib/payments/provider.ts`), the same
+shape as the weather provider: moving to Stripe or SumUp later is one new file and one environment
+variable, with no change to the screens or the database.
+
 ## The door left open for phase 2 (quick-add booking)
 
 - `src/lib/calendar/graph.ts` is a general Graph client (`graphFetch`) - adding a `POST /me/events`
@@ -137,13 +156,14 @@ The scan runs at most twice a day inside the scheduled check, or on demand from 
 ## Folder map
 
 ```
-src/app/                 screens (Today, Calendar, Plans, Prices, Stock, Spend, Settings, Login, Offline) and API routes
+src/app/                 screens (Today, Calendar, Plans, Payments, Prices, Stock, Spend, Settings, Login, Offline) and API routes
 src/components/          UI pieces
 src/lib/auth/            Microsoft sign-in, session cookie, encrypted token store
 src/lib/calendar/        Graph client, Wix-booking event parser, schedule builder, sample data
 src/lib/plans/           maintenance plans: due dates, calendar matching, reminders
 src/lib/photos/          job photos: private bucket, signed links, on-phone shrinking
 src/lib/spend/           product spend: supplier email search and order parsing
+src/lib/payments/        payment requests: provider interface, Square, hosted links, webhook
 src/lib/weather/         provider interface + Open-Meteo
 src/lib/geo/             address -> coordinates
 src/lib/rain/            "where to look" + the 15-minute check itself

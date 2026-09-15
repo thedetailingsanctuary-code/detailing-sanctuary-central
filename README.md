@@ -2,7 +2,7 @@
 
 Patrick's private operations hub for Detailing Sanctuary: today's and tomorrow's jobs from Outlook,
 rain alerts for wherever the work is, a month calendar, maintenance plans, condition photos, chemical
-stock, product spend, a price calculator and a link to the website.
+stock, product spend, deposit and balance requests, a price calculator and a link to the website.
 One user, Android first, installable as a PWA and wrapped for Google Play as a Trusted Web Activity.
 
 **v1 is read-only.** It never writes to the calendar. Phase 2 (quick-add bookings) plugs into the

@@ -4,6 +4,7 @@ import { apiError, NO_STORE } from "@/lib/api";
 import { env } from "@/lib/env";
 import { runRainCheck } from "@/lib/rain/check";
 import { alertPlansDue, syncPlanVisits } from "@/lib/plans/store";
+import { runPaymentChecks } from "@/lib/payments/store";
 import { maybeScanSupplierEmails } from "@/lib/spend/store";
 import { runStockDeductions } from "@/lib/stock/consume";
 
@@ -61,7 +62,14 @@ async function handle(req: NextRequest) {
     } catch (e) {
       spend = { error: e instanceof Error ? e.message : "spend scan failed" };
     }
-    return NextResponse.json({ ...result, stock, plans, spend }, NO_STORE);
+    // ...and catches up on payments Square could not tell us about, then chases.
+    let payments: Awaited<ReturnType<typeof runPaymentChecks>> | { error: string };
+    try {
+      payments = await runPaymentChecks();
+    } catch (e) {
+      payments = { error: e instanceof Error ? e.message : "payment check failed" };
+    }
+    return NextResponse.json({ ...result, stock, plans, spend, payments }, NO_STORE);
   } catch (e) {
     return apiError(e);
   }

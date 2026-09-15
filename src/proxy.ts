@@ -10,6 +10,10 @@ const PUBLIC_PATHS: RegExp[] = [
   /^\/offline$/,
   /^\/api\/auth\//,
   /^\/api\/cron\//,
+  // Square calls this one; it is checked by signature instead of a session.
+  /^\/api\/payments\/webhook$/,
+  // Where a customer lands after paying.
+  /^\/paid$/,
   /^\/manifest\.webmanifest$/,
   /^\/sw\.js$/,
   /^\/\.well-known\//,

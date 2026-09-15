@@ -11,6 +11,7 @@ you go, then enter them all into Vercel in section 5.
 | Firebase           | Push notifications (rain alerts)          | Free (Spark plan)                      |
 | Vercel             | Hosting + scheduled rain check            | Free (Hobby) or Pro at about $20/month - see 5.3 |
 | GitHub             | Where the code lives so Vercel can deploy | Free                                   |
+| Square             | Taking deposits and balances (optional)   | Free to open; a fee per payment taken  |
 
 ---
 
@@ -168,7 +169,41 @@ background key after 90 days of no use, or after a password change), just sign i
 
 ---
 
-## 7. Changing things later
+## 8. Square (taking payments) - optional
+
+The app can send a customer a deposit or balance request and know when it has been paid.
+It uses **Square**, the same as the booking page on the website, so everything lands in one account.
+Skip this section and the Payments screen still works for recording what is owed by hand - there is
+just no pay-by-card link.
+
+**No card details ever touch this app or its database.** The customer pays on Square's own hosted
+page. The app only stores what was asked for, the link, and whether it has been paid.
+
+1. Run `supabase/migrations/0006_payments.sql` in the Supabase SQL editor.
+2. Go to https://developer.squareup.com, sign in with your Square account, and **create an application**
+   (call it `DS Central`).
+3. On the application's **Credentials** page, switch to **Production** and copy:
+   - **Access token** -> `SQUARE_ACCESS_TOKEN`
+   - Set `SQUARE_ENVIRONMENT` to `production` (use `sandbox` plus the sandbox token to test first).
+4. Square Dashboard > **Account & Settings > Business > Locations**. Copy the location ID (starts
+   with `L`) -> `SQUARE_LOCATION_ID`.
+5. Add those three in Vercel (Production and Preview) and redeploy. The "Square is not connected"
+   warning on the Payments screen disappears.
+6. **Optional but better: the webhook.** Without it the app finds out a payment has landed on the next
+   15-minute check; with it, it knows within seconds.
+   Developer Dashboard > your application > **Webhooks > Subscriptions > Add subscription**:
+   - URL: `https://YOUR-APP-DOMAIN/api/payments/webhook`
+   - API version: leave the default
+   - Events: tick **payment.created** and **payment.updated**
+   Save, then copy the **Signature key** -> `SQUARE_WEBHOOK_SIGNATURE_KEY` in Vercel, and redeploy.
+   Any webhook that does not match that signature is rejected, so the endpoint being public is safe.
+
+Fees are Square's, not the app's - check their current pricing page before you switch it on, because
+the rate changes from time to time.
+
+---
+
+## 9. Changing things later
 
 - **Prices:** two ways.
   - Quick tweak: Supabase > Table editor > `pricing_items`. Edit `price_pence` (in pence: 10000 = £100),
@@ -185,6 +220,7 @@ background key after 90 days of no use, or after a password change), just sign i
 - **Stock:** the chemical list, per-job percentages and matching rules are all edited in the app
   (Stock tab). The starting list came from `supabase/migrations/0004_stock.sql`; run that file once
   in the Supabase SQL editor to create the tables and seed it.
+- **Payments:** run `supabase/migrations/0006_payments.sql` once, then see section 8.
 - **Plans, photos and spend:** run `supabase/migrations/0005_plans_photos_spend.sql` once in the
   Supabase SQL editor. It creates the plan tables, the private `job-photos` bucket and the purchases
   table, and seeds the supplier list used by the Spend screen. Edit that supplier list later in

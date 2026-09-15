@@ -28,6 +28,15 @@ export const env = {
     serviceAccountJson: read("FIREBASE_SERVICE_ACCOUNT_JSON"),
   },
   weatherProvider: read("WEATHER_PROVIDER") ?? "open-meteo",
+  paymentProvider: read("PAYMENT_PROVIDER") ?? "square",
+  square: {
+    accessToken: read("SQUARE_ACCESS_TOKEN"),
+    locationId: read("SQUARE_LOCATION_ID"),
+    webhookSignatureKey: read("SQUARE_WEBHOOK_SIGNATURE_KEY"),
+    environment: read("SQUARE_ENVIRONMENT") ?? "production",
+    /** Optional. With no version Square uses the one set on the application. */
+    apiVersion: read("SQUARE_API_VERSION"),
+  },
   /** Local preview with sample data. Ignored in production builds. */
   demoMode: !isProd && read("DEMO_MODE") === "true",
 };
@@ -43,4 +52,7 @@ export const configured = {
   supabase: Boolean(env.supabase.url && env.supabase.serviceRoleKey),
   push: Boolean(env.firebase.serviceAccountJson),
   cron: Boolean(env.cronSecret),
+  payments: Boolean(env.square.accessToken && env.square.locationId),
+  /** Webhooks are optional: without one the scheduled check polls Square instead. */
+  paymentWebhook: Boolean(env.square.webhookSignatureKey),
 };
