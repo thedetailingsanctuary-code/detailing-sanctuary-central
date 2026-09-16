@@ -1,10 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { apiError, NO_STORE } from "@/lib/api";
-import { env } from "@/lib/env";
+import { configured, env } from "@/lib/env";
 import { runRainCheck } from "@/lib/rain/check";
 import { alertPlansDue, syncPlanVisits } from "@/lib/plans/store";
 import { runPaymentChecks } from "@/lib/payments/store";
+import { pullFromHub } from "@/lib/jobs/store";
 import { maybeScanSupplierEmails } from "@/lib/spend/store";
 import { runStockDeductions } from "@/lib/stock/consume";
 
@@ -69,7 +70,16 @@ async function handle(req: NextRequest) {
     } catch (e) {
       payments = { error: e instanceof Error ? e.message : "payment check failed" };
     }
-    return NextResponse.json({ ...result, stock, plans, spend, payments }, NO_STORE);
+    // ...and brings over the bookings the website has taken since the last tick.
+    let jobs: Awaited<ReturnType<typeof pullFromHub>> | { error: string } | { skipped: string };
+    try {
+      // With no hub set up there is nothing to ask, and asking anyway would only
+      // report the same missing-key error every quarter of an hour.
+      jobs = configured.hub ? await pullFromHub() : { skipped: "hub not connected" };
+    } catch (e) {
+      jobs = { error: e instanceof Error ? e.message : "job pull failed" };
+    }
+    return NextResponse.json({ ...result, stock, plans, spend, payments, jobs }, NO_STORE);
   } catch (e) {
     return apiError(e);
   }

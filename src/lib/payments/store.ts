@@ -175,12 +175,39 @@ export type CreatePaymentInput = {
   note?: string | null;
 };
 
+/** An unpaid, uncancelled balance already raised against this job, if there is one. */
+export async function findOpenBalance(jobId: string): Promise<Payment | null> {
+  const { data } = await getSupabase()
+    .from("payments")
+    .select(SELECT)
+    .eq("job_id", jobId)
+    .eq("kind", "balance")
+    .in("status", ["draft", "sent"])
+    .order("created_at", { ascending: false })
+    .limit(1);
+  const row = (data ?? [])[0];
+  return row ? rowTo(row as Row) : null;
+}
+
 /**
  * Create the request and, if Square is connected, its hosted payment page.
  * Without Square it is still saved so it can be chased and marked paid by hand.
+ *
+ * A balance for a job that already has one outstanding returns the existing
+ * request rather than making a second. Two live Square links for one car is the
+ * worst thing this code could do: the customer can pay both, Square is perfectly
+ * happy to take both, and nothing downstream would notice the overcharge. It
+ * also makes the create safely repeatable - a tap that times out after the row
+ * was written comes back to the same request instead of raising another bill.
  */
 export async function createPayment(input: CreatePaymentInput): Promise<Payment> {
   if (!hasSupabase()) throw new Error("Payments need Supabase");
+
+  if (input.kind === "balance" && input.jobId) {
+    const open = await findOpenBalance(input.jobId);
+    if (open) return open;
+  }
+
   const reference = newReference();
   const currency = "GBP";
 
@@ -230,6 +257,19 @@ export async function createPayment(input: CreatePaymentInput): Promise<Payment>
   return rowTo(data as Row);
 }
 
+/** Mark paid by hand (cash, card reader, bank transfer) and retire the job with it. */
+export async function markPaidByHand(id: string, paidAmountPence?: number): Promise<Payment> {
+  const current = await getPayment(id);
+  if (!current) throw new Error("That payment is not here any more");
+  const paid = await updatePayment(id, {
+    status: "paid",
+    paidAt: new Date().toISOString(),
+    paidAmountPence: paidAmountPence ?? current.amountPence,
+  });
+  await settleJobFor(paid);
+  return paid;
+}
+
 export async function updatePayment(
   id: string,
   patch: Partial<{
@@ -269,6 +309,28 @@ export async function deletePayment(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+/**
+ * A paid balance retires the job it belongs to.
+ *
+ * Without this a job stays "invoiced" with its balance still counted, so it
+ * keeps showing up under Awaiting balance and keeps offering a Send balance
+ * button for money already in the bank. A pull from the hub cannot undo it:
+ * status is Central's own column and hubOwnedRow leaves it alone.
+ *
+ * Never allowed to throw - the payment itself is already recorded, and losing
+ * that to a jobs-table hiccup would be far worse than a status left behind.
+ */
+async function settleJobFor(payment: Payment): Promise<void> {
+  if (!payment.jobId) return;
+  if (payment.kind !== "balance" && payment.kind !== "full") return;
+  try {
+    const { setJobStatus } = await import("@/lib/jobs/store");
+    await setJobStatus(payment.jobId, "paid");
+  } catch (e) {
+    console.warn("[payments] could not mark job paid", payment.jobId, e);
+  }
+}
+
 /** Mark paid from a webhook or a status poll, and tell the phone. */
 export async function markPaidByOrder(args: {
   orderId: string;
@@ -286,6 +348,8 @@ export async function markPaidByOrder(args: {
     paidAmountPence: args.paidPence ?? existing.amountPence,
     providerPaymentId: args.paymentId,
   });
+
+  await settleJobFor(paid);
 
   await sendPushToAll({
     title: `Paid: ${paid.customerName}`,

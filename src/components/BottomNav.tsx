@@ -6,7 +6,7 @@ const ITEMS = [
   { href: "/", label: "Today", icon: HomeIcon },
   { href: "/calendar", label: "Calendar", icon: CalendarIcon },
   { href: "/pricing", label: "Quote", icon: TagIcon },
-  { href: "/stock", label: "Stock", icon: BottleIcon },
+  { href: "/jobs", label: "Jobs", icon: ClipboardIcon },
   { href: "/settings", label: "Settings", icon: CogIcon },
 ] as const;
 
@@ -57,11 +57,12 @@ function TagIcon() {
     </svg>
   );
 }
-function BottleIcon() {
+function ClipboardIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-      <path d="M10 3h4v3l2 3v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3V3Z" />
-      <path d="M8 14h8" />
+      <rect x="5" y="4" width="14" height="17" rx="2" />
+      <rect x="9" y="2" width="6" height="4" rx="1" fill="currentColor" stroke="none" />
+      <path d="M8.5 11.5h7M8.5 15.5h4.5" />
     </svg>
   );
 }

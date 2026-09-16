@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { apiError, NO_STORE } from "@/lib/api";
 import { requireSession } from "@/lib/auth/session";
 import { renderPaymentEmail } from "@/lib/payments/email";
-import { deletePayment, getPayment, updatePayment } from "@/lib/payments/store";
+import { deletePayment, getPayment, markPaidByHand, updatePayment } from "@/lib/payments/store";
 import type { PaymentChannel } from "@/lib/payments/types";
 import { sendMail } from "@/lib/quotes/mail";
 import { hasSupabase } from "@/lib/supabase";
@@ -72,16 +72,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
         );
 
       case "paid":
-        return NextResponse.json(
-          {
-            payment: await updatePayment(id, {
-              status: "paid",
-              paidAt: new Date().toISOString(),
-              paidAmountPence: body.paidAmountPence ?? payment.amountPence,
-            }),
-          },
-          NO_STORE,
-        );
+        return NextResponse.json({ payment: await markPaidByHand(id, body.paidAmountPence) }, NO_STORE);
 
       case "cancel":
         return NextResponse.json({ payment: await updatePayment(id, { status: "cancelled" }) }, NO_STORE);

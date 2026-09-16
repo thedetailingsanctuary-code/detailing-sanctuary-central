@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { errorMessage, fetchJson } from "@/lib/client-hooks";
+import { AMOUNT_HINT, parsePounds, poundsToPence } from "@/lib/money";
 import { poundsLabel, poundsShort, type Purchase, type SpendSnapshot } from "@/lib/spend/types";
 import { formatMonthLabel, formatShortDate } from "@/lib/time";
 
@@ -161,14 +162,15 @@ function PendingRow({ purchase, onDone }: { purchase: Purchase; onDone: () => Pr
   const [busy, setBusy] = useState(false);
 
   const save = async (status: "confirmed" | "dismissed") => {
-    const pounds = Number(value.replace(/[^0-9.]/g, ""));
-    if (status === "confirmed" && (!Number.isFinite(pounds) || pounds <= 0)) return;
+    const pounds = parsePounds(value);
+    if (status === "confirmed" && pounds === null) return;
+    const body = status === "confirmed" ? { totalPence: poundsToPence(pounds ?? 0), status } : { status };
     setBusy(true);
     try {
       await fetchJson(`/api/spend/${purchase.id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(status === "confirmed" ? { totalPence: Math.round(pounds * 100), status } : { status }),
+        body: JSON.stringify(body),
       });
       await onDone();
     } finally {
@@ -257,11 +259,11 @@ function AddSheet({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const pounds = useMemo(() => Number(total.replace(/[^0-9.]/g, "")), [total]);
+  const pounds = useMemo(() => parsePounds(total), [total]);
 
   const save = async () => {
     if (!supplier.trim()) return setError("Which supplier?");
-    if (!Number.isFinite(pounds) || pounds <= 0) return setError("How much was it?");
+    if (pounds === null) return setError(AMOUNT_HINT);
     setBusy(true);
     setError(null);
     try {
@@ -270,7 +272,7 @@ function AddSheet({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           supplier: supplier.trim(),
-          totalPence: Math.round(pounds * 100),
+          totalPence: poundsToPence(pounds),
           purchasedOn,
           note: note.trim() || null,
         }),

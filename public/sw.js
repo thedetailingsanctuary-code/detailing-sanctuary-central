@@ -1,11 +1,15 @@
 /* Detailing Sanctuary Central - service worker (offline cache + push). Plain JS, no build step. */
-const VERSION = "dsc-v2";
+const VERSION = "dsc-v3";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const API_CACHE = `${VERSION}-api`;
 const IMG_CACHE = `${VERSION}-img`;
 
 const PRECACHE = ["/offline", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/badge-96.png"];
+// Cached so the app still shows something with no signal. "/api/jobs" is deliberately NOT in
+// this list: it carries every customer's name, email, phone, address and access notes, and
+// caching it writes all of that to disk in plain text where nothing ever clears it. The Jobs
+// board shows its error state offline instead, which is the right trade for that much detail.
 const CACHED_APIS = ["/api/schedule", "/api/weather", "/api/pricing", "/api/calendar", "/api/plans", "/api/spend", "/api/payments", "/api/status", "/api/stock"];
 
 self.addEventListener("install", (event) => {
@@ -131,5 +135,11 @@ self.addEventListener("notificationclick", (event) => {
 });
 
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
+  if (!event.data) return;
+  if (event.data.type === "SKIP_WAITING") self.skipWaiting();
+  // Signing out should not leave a readable copy of the schedule, the customers and what they
+  // owe sitting in the browser's cache for whoever picks the phone up next.
+  if (event.data.type === "CLEAR_API_CACHE") {
+    event.waitUntil(caches.delete(API_CACHE));
+  }
 });

@@ -76,7 +76,16 @@ export function SettingsPanel({ email, name, demo }: { email: string; name: stri
         <p className="mt-1 font-display text-xl">{name || "Signed in"}</p>
         <p className="text-sm text-fg-dim">{email}</p>
         {!demo && (
-          <form method="post" action="/api/auth/logout" className="mt-3">
+          <form
+            method="post"
+            action="/api/auth/logout"
+            className="mt-3"
+            onSubmit={() => {
+              // Drop the cached API responses before the session goes. They hold customer
+              // names, addresses and balances, and nothing else ever clears them.
+              navigator.serviceWorker?.controller?.postMessage({ type: "CLEAR_API_CACHE" });
+            }}
+          >
             <button type="submit" className="btn btn-ghost w-full">
               Sign out
             </button>

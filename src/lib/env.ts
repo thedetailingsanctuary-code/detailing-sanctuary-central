@@ -37,6 +37,10 @@ export const env = {
     /** Optional. With no version Square uses the one set on the application. */
     apiVersion: read("SQUARE_API_VERSION"),
   },
+  hub: {
+    baseUrl: read("HUB_BASE_URL"),
+    adminKey: read("HUB_ADMIN_KEY"),
+  },
   /** Local preview with sample data. Ignored in production builds. */
   demoMode: !isProd && read("DEMO_MODE") === "true",
 };
@@ -55,4 +59,5 @@ export const configured = {
   payments: Boolean(env.square.accessToken && env.square.locationId),
   /** Webhooks are optional: without one the scheduled check polls Square instead. */
   paymentWebhook: Boolean(env.square.webhookSignatureKey),
+  hub: Boolean(env.hub.baseUrl && env.hub.adminKey),
 };

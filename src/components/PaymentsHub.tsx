@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { errorMessage, fetchJson } from "@/lib/client-hooks";
+import { AMOUNT_HINT, parsePounds, poundsToPence } from "@/lib/money";
 import {
   isOutstanding,
   isOverdue,
@@ -269,12 +270,13 @@ function RequestSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () =
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const pounds = useMemo(() => Number(amount.replace(/[^0-9.]/g, "")), [amount]);
+  const pounds = useMemo(() => parsePounds(amount), [amount]);
 
   const save = async () => {
     if (!customerName.trim()) return setError("Who is it for?");
     if (!description.trim()) return setError("What is it for?");
-    if (!Number.isFinite(pounds) || pounds < 1) return setError("Enter an amount of £1 or more");
+    if (pounds === null) return setError(AMOUNT_HINT);
+    if (pounds < 1) return setError("Enter an amount of £1 or more");
     if (sendNow && !customerEmail.trim()) return setError("Add an email address, or untick 'email it now'");
 
     setBusy(true);
@@ -289,7 +291,7 @@ function RequestSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () =
           customerEmail: customerEmail.trim() || null,
           customerPhone: customerPhone.trim() || null,
           description: description.trim(),
-          amountPence: Math.round(pounds * 100),
+          amountPence: poundsToPence(pounds),
           dueOn: dueOn || null,
         }),
       });
